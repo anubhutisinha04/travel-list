@@ -1,73 +1,47 @@
-const initialItems = [
-  { id: 1, description: "Passports", quantity: 2, packed: false },
-  { id: 2, description: "Socks", quantity: 12, packed: false },
-  { id: 3, description: "Charger", quantity: 1, packed: false },
-];
+import { useState } from "react";
+import Logo from "./Logo";
+import Form from "./Form";
+import PackingList from "./PackingList";
+import Stats from "./Stats";
 
 export default function App() {
-  return (
-    <div className="app">
-      <Logo />
-      <Form />
-      <PackingList />
-      <Stats />
-    </div>
-  );
-}
+  const [items, setItem] = useState([]);
 
-function Logo() {
-  return <h1> ✈️ PACK IT AWAY 🏝️</h1>;
-}
+  function handleItems(item) {
+    setItem((items) => [...items, item]);
+  }
 
-function Form() {
-  function handleSubmission(e) {
-    e.preventDefault();
-    console.log(e);
+  function handleDeleteItems(id) {
+    console.log(id);
+    setItem((items) => items.filter((item) => item.id !== id));
+  }
+
+  function handleToggle(id) {
+    setItem((items) =>
+      items.map((item) =>
+        item.id === id ? { ...item, packed: !item.packed } : item
+      )
+    );
+  }
+
+  function onClearAll() {
+    const confirmed = window.confirm(
+      "Are you sure you want to clear out the whole list ?"
+    );
+    if (confirmed) setItem([]);
   }
 
   return (
-    <form className="add-form" onSubmit={handleSubmission}>
-      <h3>What do you need for your ☀️ time away ?</h3>
-      <select>
-        {Array.from({ length: 20 }, (_, i) => i + 1).map((num) => (
-          <option value={num} key={num}>
-            {num}
-          </option>
-        ))}
-      </select>
-      <input type="text" placeholder="Item ... " />
-      <button>Add</button>
-    </form>
-  );
-}
-
-function PackingList() {
-  return (
-    <div className="list">
-      <ul>
-        {initialItems.map((item) => (
-          <Item item={item} />
-        ))}
-      </ul>
+    <div className="app">
+      <Logo />
+      <Form onAddItems={handleItems} />
+      <PackingList
+        items={items}
+        onDeleteItems={handleDeleteItems}
+        onPackedItem={handleToggle}
+        onClearAll={onClearAll}
+      />
+      <Stats items={items} />
     </div>
-  );
-}
-
-function Item({ item }) {
-  return (
-    <li>
-      <span style={item.packed ? { textDecoration: "line-through" } : {}}>
-        {item.quantity} {item.description}
-      </span>
-      <button>❌</button>
-    </li>
-  );
-}
-
-function Stats() {
-  return (
-    <footer className="stats">
-      <em> You have X items on your list and have already packed (x%)</em>
-    </footer>
   );
 }
